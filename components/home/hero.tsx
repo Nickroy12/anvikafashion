@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const SLIDER_IMAGES = [
     "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1550639524-a6f58345a278?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1740979142180-c7aba7a038f4?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop"
 ];
 
@@ -24,7 +24,7 @@ export const Hero: React.FC = () => {
         <section className="relative w-full min-h-[92vh] flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 bg-white dark:bg-zinc-950">
             {/* The Centered Image Container */}
             <div className="relative w-full max-w-7xl min-h-[80vh] py-16 rounded-3xl overflow-hidden shadow-2xl bg-zinc-950 flex items-center justify-center">
-                
+
                 {/* Background Image Slider with Framer Motion */}
                 <AnimatePresence>
                     <motion.div
@@ -42,20 +42,20 @@ export const Hero: React.FC = () => {
                         />
                     </motion.div>
                 </AnimatePresence>
-                
+
                 {/* Gradient overlay to make text highly readable */}
                 <div className="absolute inset-0 bg-black/40 dark:bg-black/50 z-10" />
 
                 {/* Centered Content with Staggered Framer Motion */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, ease: "easeOut" }}
                     className="relative z-20 px-6 py-8 sm:px-12 sm:py-10 flex flex-col items-center text-center max-w-4xl mx-auto space-y-6 sm:space-y-8 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
                 >
-                    
+
                     {/* Elegant Eyebrow */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
@@ -69,7 +69,7 @@ export const Hero: React.FC = () => {
                     </motion.div>
 
                     {/* Main Typography */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                         transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -84,7 +84,7 @@ export const Hero: React.FC = () => {
                     </motion.div>
 
                     {/* Call to Actions */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
@@ -100,7 +100,7 @@ export const Hero: React.FC = () => {
                 </motion.div>
 
                 {/* Slider Indicators positioned at the absolute bottom */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1, duration: 1 }}
@@ -110,9 +110,8 @@ export const Hero: React.FC = () => {
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}
-                            className={`h-1.5 rounded-full transition-all duration-500 ease-out ${
-                                index === currentSlide ? "w-12 bg-white" : "w-3 bg-white/50 hover:bg-white/80"
-                            }`}
+                            className={`h-1.5 rounded-full transition-all duration-500 ease-out ${index === currentSlide ? "w-12 bg-white" : "w-3 bg-white/50 hover:bg-white/80"
+                                }`}
                             aria-label={`Go to slide ${index + 1}`}
                         />
                     ))}
