@@ -9,7 +9,8 @@ export async function addProductAction(payload: {
   category: string
   subcategory: string
   stock: number
-  imageUrl: string
+  discount?: number
+  imageUrls: string[]
 }) {
   return serverMutation<{ error?: string; product?: unknown }>(
     "/api/products",

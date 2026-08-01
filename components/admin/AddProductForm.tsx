@@ -11,8 +11,8 @@ export function AddProductForm() {
   const [error, setError] = useState<string | null>(null)
 
   // Image upload state
-  const [imageUrl, setImageUrl] = useState<string>("")
-  const [imagePreview, setImagePreview] = useState<string>("")
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [imageUploading, setImageUploading] = useState(false)
   const [imageError, setImageError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -24,7 +24,9 @@ export function AddProductForm() {
     category: "clothing",
     subcategory: "maxi-dresses",
     stock: "0",
+    discount: "",
   })
+  const [hasDiscount, setHasDiscount] = useState(false)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -35,68 +37,67 @@ export function AddProductForm() {
 
   // ── ImgBB Upload ──────────────────────────────────────────────────────────
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
 
     // Validate type & size (max 10 MB for ImgBB free tier)
-    if (!file.type.startsWith("image/")) {
-      setImageError("Please select a valid image file.")
-      return
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setImageError("Image must be smaller than 10 MB.")
-      return
+    const validFiles = files.filter(f => f.type.startsWith("image/") && f.size <= 10 * 1024 * 1024)
+    if (validFiles.length !== files.length) {
+      setImageError("Some files were rejected. Must be images under 10 MB.")
+      if (validFiles.length === 0) return
+    } else {
+      setImageError(null)
     }
 
-    setImageError(null)
     setImageUploading(true)
-    setImageUrl("")
-    setImagePreview("")
+
+    // Show local previews immediately
+    const newPreviews = validFiles.map(f => URL.createObjectURL(f))
+    setImagePreviews(prev => [...prev, ...newPreviews])
 
     try {
-      // Convert to base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => {
-          const result = reader.result as string
-          // Strip the data URL prefix
-          resolve(result.split(",")[1])
-        }
-        reader.onerror = reject
-        reader.readAsDataURL(file)
-      })
+      const uploadedUrls: string[] = []
+      
+      for (const file of validFiles) {
+        // Convert to base64
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve((reader.result as string).split(",")[1])
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
 
-      // Show local preview immediately
-      setImagePreview(URL.createObjectURL(file))
+        // Upload to ImgBB
+        const formPayload = new FormData()
+        formPayload.append("key", process.env.NEXT_PUBLIC_IMGBB_API_KEY!)
+        formPayload.append("image", base64)
 
-      // Upload to ImgBB
-      const formPayload = new FormData()
-      formPayload.append("key", process.env.NEXT_PUBLIC_IMGBB_API_KEY!)
-      formPayload.append("image", base64)
-
-      const res = await fetch("https://api.imgbb.com/1/upload", {
-        method: "POST",
-        body: formPayload,
-      })
-
-      const json = await res.json()
-
-      if (!json.success) {
-        throw new Error(json.error?.message || "ImgBB upload failed")
+        const res = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formPayload,
+        })
+        const json = await res.json()
+        if (!json.success) throw new Error(json.error?.message || "ImgBB upload failed")
+        
+        uploadedUrls.push(json.data.url)
       }
 
-      setImageUrl(json.data.url)
+      setImageUrls(prev => [...prev, ...uploadedUrls])
     } catch (err: any) {
       setImageError(err.message || "Image upload failed. Please try again.")
-      setImagePreview("")
     } finally {
       setImageUploading(false)
     }
   }
 
+  const removeImage = (index: number) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index))
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
+  }
+
   const clearImage = () => {
-    setImageUrl("")
-    setImagePreview("")
+    setImageUrls([])
+    setImagePreviews([])
     setImageError(null)
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
@@ -113,7 +114,8 @@ export function AddProductForm() {
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock, 10),
-        imageUrl,
+        discount: hasDiscount && formData.discount ? parseFloat(formData.discount) : undefined,
+        imageUrls,
       })
 
       if ((data as any).error) {
@@ -128,7 +130,9 @@ export function AddProductForm() {
         category: "clothing",
         subcategory: "maxi-dresses",
         stock: "0",
+        discount: "",
       })
+      setHasDiscount(false)
       clearImage()
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred")
@@ -207,6 +211,51 @@ export function AddProductForm() {
               </div>
             </div>
 
+            {/* Discount Toggle */}
+            <div className="flex items-center justify-between p-4 border border-border/60 rounded-lg">
+              <div className="space-y-0.5">
+                <label className="text-sm font-medium">Discount</label>
+                <p className="text-xs text-muted-foreground">Add a promotional discount to this product.</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={hasDiscount}
+                onClick={() => setHasDiscount(!hasDiscount)}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${
+                  hasDiscount ? 'bg-zinc-900 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-800'
+                }`}
+              >
+                <span className="sr-only">Toggle discount</span>
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-zinc-900 shadow ring-0 transition duration-200 ease-in-out ${
+                    hasDiscount ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {hasDiscount && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                <label htmlFor="discount" className="text-sm font-medium">
+                  Discount Value <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  id="discount"
+                  name="discount"
+                  required={hasDiscount}
+                  min="0"
+                  step="0.01"
+                  value={formData.discount}
+                  onChange={handleChange}
+                  placeholder="e.g. 10 (amount or % depending on your logic)"
+                  className="w-full px-3 py-2 border border-border/60 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 text-sm"
+                />
+              </div>
+            )}
+
             {/* Description */}
             <div className="space-y-2">
               <label htmlFor="description" className="text-sm font-medium">
@@ -283,7 +332,7 @@ export function AddProductForm() {
             {/* ── Image Upload via ImgBB ─────────────────────────────────── */}
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Product Image
+                Product Images
               </label>
 
               {/* Hidden real file input */}
@@ -292,63 +341,62 @@ export function AddProductForm() {
                 type="file"
                 id="product-image-input"
                 accept="image/*"
+                multiple
                 className="sr-only"
                 onChange={handleImageChange}
               />
 
-              {imagePreview ? (
-                /* Preview state */
-                <div className="relative rounded-xl overflow-hidden border border-border/60 bg-zinc-50 dark:bg-zinc-800">
-                  <img
-                    src={imagePreview}
-                    alt="Product preview"
-                    className="w-full h-48 object-cover"
-                  />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {imagePreviews.map((preview, index) => {
+                  const isUploaded = imageUrls[index] !== undefined;
+                  
+                  return (
+                    <div key={index} className="relative rounded-xl overflow-hidden border border-border/60 bg-zinc-50 dark:bg-zinc-800 aspect-square">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index}`}
+                        className="w-full h-full object-cover"
+                      />
 
-                  {/* Uploading overlay */}
-                  {imageUploading && (
-                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="w-6 h-6 text-white animate-spin" />
-                      <p className="text-white text-xs font-medium">Uploading to ImgBB…</p>
+                      {/* Uploading overlay */}
+                      {!isUploaded && imageUploading && (
+                        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2">
+                          <Loader2 className="w-5 h-5 text-white animate-spin" />
+                        </div>
+                      )}
+
+                      {/* Uploaded badge + remove */}
+                      {!imageUploading && isUploaded && (
+                        <div className="absolute top-1 left-1 flex items-center gap-1 bg-emerald-600 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors shadow-sm"
+                        aria-label="Remove image"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
-                  )}
+                  );
+                })}
 
-                  {/* Uploaded badge + remove */}
-                  {!imageUploading && imageUrl && (
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-medium px-2 py-1 rounded-full">
-                      <Check className="w-3 h-3" />
-                      Uploaded
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={clearImage}
-                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
-                    aria-label="Remove image"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                /* Drop zone */
+                {/* Drop zone / Add more */}
                 <label
                   htmlFor="product-image-input"
-                  className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-border/60 rounded-xl p-8 text-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group"
+                  className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/60 rounded-xl p-4 text-center hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group aspect-square min-h-[150px]"
                 >
-                  <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
-                    <ImageIcon className="w-5 h-5 text-foreground/60" />
+                  <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
+                    <Upload className="w-4 h-4 text-foreground/60" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">
-                      Click to upload
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      PNG, JPG, GIF or WEBP — max 10 MB
-                    </p>
+                    <p className="text-xs font-medium">Add Images</p>
                   </div>
                 </label>
-              )}
+              </div>
 
               {imageError && (
                 <p className="text-xs text-red-500 mt-1">{imageError}</p>
