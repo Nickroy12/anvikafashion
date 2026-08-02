@@ -57,7 +57,7 @@ export function AddProductForm() {
 
     try {
       const uploadedUrls: string[] = []
-      
+
       for (const file of validFiles) {
         // Convert to base64
         const base64 = await new Promise<string>((resolve, reject) => {
@@ -78,7 +78,7 @@ export function AddProductForm() {
         })
         const json = await res.json()
         if (!json.success) throw new Error(json.error?.message || "ImgBB upload failed")
-        
+
         uploadedUrls.push(json.data.url)
       }
 
@@ -222,16 +222,14 @@ export function AddProductForm() {
                 role="switch"
                 aria-checked={hasDiscount}
                 onClick={() => setHasDiscount(!hasDiscount)}
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${
-                  hasDiscount ? 'bg-zinc-900 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-800'
-                }`}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 ${hasDiscount ? 'bg-zinc-900 dark:bg-zinc-100' : 'bg-zinc-200 dark:bg-zinc-800'
+                  }`}
               >
                 <span className="sr-only">Toggle discount</span>
                 <span
                   aria-hidden="true"
-                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-zinc-900 shadow ring-0 transition duration-200 ease-in-out ${
-                    hasDiscount ? 'translate-x-4' : 'translate-x-0'
-                  }`}
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-zinc-900 shadow ring-0 transition duration-200 ease-in-out ${hasDiscount ? 'translate-x-4' : 'translate-x-0'
+                    }`}
                 />
               </button>
             </div>
@@ -303,10 +301,17 @@ export function AddProductForm() {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-border/60 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 text-sm appearance-none"
                 >
-                  <option value="maxi-dresses">Maxi Dresses</option>
-                  <option value="midi-dresses">Midi Dresses</option>
-                  <option value="mini-dresses">Mini Dresses</option>
-                  <option value="wrap-dresses">Wrap Dresses</option>
+                  {[
+                    { value: "maxi-dresses", label: "Maxi Dresses" },
+                    { value: "midi-dresses", label: "Midi Dresses" },
+                    { value: "mini-dresses", label: "Mini Dresses" },
+                    { value: "wrap-dresses", label: "Wrap Dresses" },
+                    { value: "Saree", label: "Saree" },
+                  ].map((sub) => (
+                    <option key={sub.value} value={sub.value}>
+                      {sub.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -349,7 +354,7 @@ export function AddProductForm() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {imagePreviews.map((preview, index) => {
                   const isUploaded = imageUrls[index] !== undefined;
-                  
+
                   return (
                     <div key={index} className="relative rounded-xl overflow-hidden border border-border/60 bg-zinc-50 dark:bg-zinc-800 aspect-square">
                       <img
