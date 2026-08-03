@@ -1,10 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, Check, ShoppingBag, Star, ShieldCheck, Truck } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, Check, Star, ShieldCheck, Truck } from "lucide-react"
 import { serverFetch } from "@/lib/core/api"
 import { ProductGallery } from "@/components/products/product-gallery"
+import { AddToCartSection } from "@/components/products/add-to-cart-section"
 
 // Helper to parse the multiline description into structured data
 function parseDescription(description: string) {
@@ -152,25 +152,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
             )}
 
             {/* Stock & Action */}
-            <div className="mt-auto pt-6">
-              <div className="flex items-center gap-2 mb-6">
-                <div className={`w-2.5 h-2.5 rounded-full ${product.stock > 0 ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`} />
-                <span className="text-sm font-medium">
-                  {product.stock > 0 ? `${product.stock} in stock - Ready to ship` : 'Out of stock'}
-                </span>
-              </div>
-
-              <div className="flex gap-4">
-                <Button
-                  size="lg"
-                  className="flex-1 text-base font-semibold h-14 rounded-xl shadow-lg hover:shadow-xl transition-all"
-                  disabled={product.stock <= 0}
-                >
-                  <ShoppingBag className="w-5 h-5 mr-2" />
-                  {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                </Button>
-              </div>
-            </div>
+            <AddToCartSection product={product} />
 
             {/* Badges / Guarantees */}
             <div className="grid grid-cols-2 gap-4 mt-10 pt-6 border-t border-border/60">

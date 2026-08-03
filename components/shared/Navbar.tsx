@@ -3,11 +3,13 @@
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Menu, X, Sparkles, ChevronDown, LogOut, User as UserIcon, LayoutDashboard } from "lucide-react"
+import { Menu, X, Sparkles, ChevronDown, LogOut, User as UserIcon, LayoutDashboard, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { motion, AnimatePresence } from "framer-motion"
 import { authClient } from "@/lib/auth-client"
+import { useCartStore } from "@/lib/store/useCartStore"
+import { CartDrawer } from "@/components/shared/CartDrawer"
 
 type NavLink = {
   name: string
@@ -67,6 +69,15 @@ export const Navbar: React.FC = () => {
 
   const { data: session, isPending } = authClient.useSession()
   const user = session?.user
+  
+  const { items, toggleCart } = useCartStore()
+  const [isMounted, setIsMounted] = useState(false)
+  
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const cartItemsCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
   // Close user dropdown on outside click
   useEffect(() => {
@@ -163,6 +174,20 @@ export const Navbar: React.FC = () => {
 
           {/* Action Button & Mobile Toggle */}
           <div className="flex items-center gap-2 sm:gap-4 z-50">
+            <button 
+              onClick={toggleCart} 
+              className="relative p-2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
+              aria-label="Toggle cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {isMounted && cartItemsCount > 0 && (
+                <span className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-full shadow-sm">
+                  {cartItemsCount}
+                </span>
+              )}
+            </button>
+            <CartDrawer />
+            
             <ThemeToggle />
 
             {/* Session-aware auth area */}
