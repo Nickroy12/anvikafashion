@@ -7,10 +7,12 @@ import { Minus, Plus, ShoppingCart, Trash2, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { clientMutation } from "@/lib/core/client-api"
+import { authClient } from "@/lib/auth-client"
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity } = useCartStore()
   const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const { data: session } = authClient.useSession()
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -21,10 +23,10 @@ export function CartDrawer() {
       const orderData = {
         price: totalPrice,
         items: items,
-        // Optional default fields for the backend payload
-        name: 'Guest User',
-        email: 'guest@example.com',
-        phone: '01700000000',
+        // Use real user data if available, fallback to Guest
+        name: session?.user?.name || 'Guest User',
+        email: session?.user?.email || 'guest@example.com',
+        phone: (session?.user as any)?.phoneNumber || '01700000000',
       }
 
       const res = await clientMutation<{ url?: string }>("/api/orders", orderData)
