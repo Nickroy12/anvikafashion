@@ -36,14 +36,22 @@ export const authRequired = async () => {
  * - Not authenticated  → redirect to /auth
  * - Wrong role         → redirect to /unauthorized
  */
-export const roleRequired = async (role: string) => {
+export const roleRequired = async (role: string | string[]) => {
   const user = await getUserSession()
 
   if (!user) {
     redirect("/auth")
   }
 
-  if ((user as any).role !== role) {
+  const userRole = (user as any).role || "user"
+  const allowedRoles = Array.isArray(role) ? role : [role]
+
+  // If the page requires "customer", also allow "user"
+  if (allowedRoles.includes("customer") && userRole === "user") {
+    return
+  }
+
+  if (!allowedRoles.includes(userRole)) {
     redirect("/unauthorized")
   }
 }

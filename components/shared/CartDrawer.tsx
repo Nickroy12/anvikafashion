@@ -3,14 +3,44 @@
 import { useCartStore } from "@/lib/store/useCartStore"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react"
+import { Minus, Plus, ShoppingCart, Trash2, Loader2 } from "lucide-react"
 import Image from "next/image"
+import { useState } from "react"
+import { clientMutation } from "@/lib/core/client-api"
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity } = useCartStore()
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  const handleCheckout = async () => {
+    try {
+      setIsCheckingOut(true)
+      const orderData = {
+        price: totalPrice,
+        items: items,
+        // Optional default fields for the backend payload
+        name: 'Guest User',
+        email: 'guest@example.com',
+        phone: '01700000000',
+      }
+
+      const res = await clientMutation<{ url?: string }>("/api/orders", orderData)
+      if (res?.url) {
+        window.location.href = res.url
+      } else {
+        console.error("Failed to get payment URL", res)
+        alert("Payment initialization failed. Please try again.")
+      }
+    } catch (error) {
+      console.error("Checkout error:", error)
+      alert("Something went wrong during checkout.")
+    } finally {
+      setIsCheckingOut(false)
+    }
+  }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -49,11 +79,11 @@ export function CartDrawer() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex flex-col flex-1">
                     <h4 className="font-semibold text-foreground line-clamp-1">{item.name}</h4>
                     <p className="font-bold text-primary">${item.price.toFixed(2)}</p>
-                    
+
                     <div className="flex items-center gap-4 mt-2">
                       <div className="flex items-center border border-border/60 rounded-lg overflow-hidden h-8">
                         <button
@@ -73,7 +103,7 @@ export function CartDrawer() {
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
-                      
+
                       <button
                         onClick={() => removeItem(item.id)}
                         className="text-red-500 hover:text-red-600 transition-colors ml-auto p-2"
@@ -95,8 +125,20 @@ export function CartDrawer() {
               <span className="text-lg font-semibold text-muted-foreground">Subtotal</span>
               <span className="text-3xl font-black text-foreground">${totalPrice.toFixed(2)}</span>
             </div>
-            <Button size="lg" className="w-full h-14 text-lg font-bold rounded-xl shadow-lg">
-              Proceed to Checkout
+            <Button
+              size="lg"
+              className="w-full h-14 text-lg font-bold rounded-xl shadow-lg"
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+            >
+              {isCheckingOut ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Proceed to Checkout"
+              )}
             </Button>
           </div>
         )}

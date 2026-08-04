@@ -193,91 +193,94 @@ export const Navbar: React.FC = () => {
             {/* Session-aware auth area */}
             {!isPending && (
               user ? (
-                /* User Avatar Dropdown */
-                <div className="relative" ref={userMenuRef}>
-                  <button
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center gap-2 group focus:outline-none"
-                    aria-label="User menu"
-                  >
-                    <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-gray-500 to-zinc-700 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-transparent group-hover:ring-primary/40 transition-all duration-300">
-                      {user.image ? (
-                        <img src={user.image} alt={user.name ?? "User"} className="w-full h-full rounded-full object-cover" />
-                      ) : (
-                        <span>{getInitial(user.name, user.email)}</span>
-                      )}
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background" />
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-muted-foreground hidden sm:block transition-transform duration-300 ${isUserMenuOpen ? "rotate-180" : ""}`} />
-                  </button>
+                // If they have a phone number, it MUST be verified to show the avatar
+                (!((user as any).phoneNumber) || (user as any).phoneNumberVerified) ? (
+                  /* User Avatar Dropdown */
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className="flex items-center gap-2 group focus:outline-none"
+                      aria-label="User menu"
+                    >
+                      <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-gray-500 to-zinc-700 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-transparent group-hover:ring-primary/40 transition-all duration-300">
+                        {user.image ? (
+                          <img src={user.image} alt={user.name ?? "User"} className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <span>{getInitial(user.name, user.email)}</span>
+                        )}
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background" />
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground hidden sm:block transition-transform duration-300 ${isUserMenuOpen ? "rotate-180" : ""}`} />
+                    </button>
 
-                  <AnimatePresence>
-                    {isUserMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                        transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="absolute right-0 top-full mt-3 w-60 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-md shadow-2xl overflow-hidden z-[120]"
-                      >
-                        {/* User info header */}
-                        <div className="px-4 py-3 border-b border-border/40">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-500 to-zinc-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                              {user.image ? (
-                                <img src={user.image} alt={user.name ?? "User"} className="w-full h-full rounded-full object-cover" />
-                              ) : (
-                                <span>{getInitial(user.name, user.email)}</span>
-                              )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-semibold text-foreground truncate">{user.name || "User"}</p>
-                                {userRole && (
-                                  <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${
-                                    userRole === "admin"
-                                      ? "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
-                                      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                                  }`}>
-                                    {userRole}
-                                  </span>
+                    <AnimatePresence>
+                      {isUserMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                          transition={{ duration: 0.18, ease: "easeOut" }}
+                          className="absolute right-0 top-full mt-3 w-60 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-md shadow-2xl overflow-hidden z-[120]"
+                        >
+                          {/* User info header */}
+                          <div className="px-4 py-3 border-b border-border/40">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-500 to-zinc-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                {user.image ? (
+                                  <img src={user.image} alt={user.name ?? "User"} className="w-full h-full rounded-full object-cover" />
+                                ) : (
+                                  <span>{getInitial(user.name, user.email)}</span>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-semibold text-foreground truncate">{user.name || "User"}</p>
+                                  {userRole && (
+                                    <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${
+                                      userRole === "admin"
+                                        ? "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
+                                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                                    }`}>
+                                      {userRole}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Menu items */}
-                        <div className="p-2">
-                          <Link
-                            href={dashboardHref}
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
-                          >
-                            <LayoutDashboard className="w-4 h-4" />
-                            Dashboard
-                          </Link>
-                          <Link
-                            href="/profile"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
-                          >
-                            <UserIcon className="w-4 h-4" />
-                            My Profile
-                          </Link>
-                          <button
-                            onClick={handleSignOut}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors mt-0.5"
-                          >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                          {/* Menu items */}
+                          <div className="p-2">
+                            <Link
+                              href={dashboardHref}
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
+                            >
+                              <LayoutDashboard className="w-4 h-4" />
+                              Dashboard
+                            </Link>
+                            <Link
+                              href="/profile"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
+                            >
+                              <UserIcon className="w-4 h-4" />
+                              My Profile
+                            </Link>
+                            <button
+                              onClick={handleSignOut}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors mt-0.5"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              Sign Out
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : null
               ) : (
                 /* Get Started button when logged out */
                 <div className="inline-flex relative group overflow-hidden rounded-full p-[2px] transition-shadow duration-500 hover:shadow-[0_0_20px_rgba(128,128,128,0.5)]">
