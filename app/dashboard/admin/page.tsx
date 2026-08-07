@@ -155,6 +155,41 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <section>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">
+            Quick Actions
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <Link
+              href="/dashboard/admin/products"
+              id="manage-products-link"
+              className="group rounded-xl bg-white dark:bg-zinc-900 border border-border/60 p-5 hover:border-foreground/30 hover:shadow-sm transition-all flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 flex items-center justify-center flex-shrink-0 transition-colors">
+                <Package className="w-5 h-5 text-foreground/70" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Manage Products</p>
+                <p className="text-xs text-muted-foreground mt-0.5">View, edit &amp; delete all products</p>
+              </div>
+            </Link>
+            <Link
+              href="/dashboard/admin/products/add"
+              id="quick-add-product-link"
+              className="group rounded-xl bg-white dark:bg-zinc-900 border border-border/60 p-5 hover:border-foreground/30 hover:shadow-sm transition-all flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 flex items-center justify-center flex-shrink-0 transition-colors">
+                <Plus className="w-5 h-5 text-foreground/70" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Add Product</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Create a new product listing</p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
         {/* Role info banner */}
         <div className="rounded-xl border border-border/60 bg-white dark:bg-zinc-900 p-5 flex items-center gap-4">
           <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
