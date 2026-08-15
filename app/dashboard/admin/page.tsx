@@ -12,23 +12,93 @@ import {
   Plus,
 } from "lucide-react"
 
-const stats = [
-  { label: "Total Users", value: "2,847", change: "+12%", icon: Users },
-  { label: "Total Orders", value: "18,293", change: "+8%", icon: ShoppingBag },
-  { label: "Revenue", value: "₹4.2L", change: "+23%", icon: TrendingUp },
-  { label: "Products", value: "342", change: "+5%", icon: Package },
-]
+// ── Types ──────────────────────────────────────────────────────────────────
+interface AdminStats {
+  totalUsers: number
+  totalOrders: number
+  totalProducts: number
+  totalRevenue: number
+  recentActivity: {
+    user: string
+    action: string
+    time: string | null
+    amount: string | null
+  }[]
+}
 
-const recentActivity = [
-  { user: "Priya Sharma", action: "Placed an order", time: "2 min ago", amount: "₹2,450" },
-  { user: "Rahul Verma", action: "Registered", time: "15 min ago", amount: null },
-  { user: "Anita Patel", action: "Placed an order", time: "32 min ago", amount: "₹5,800" },
-  { user: "Sunita Roy", action: "Placed an order", time: "1 hr ago", amount: "₹1,200" },
-  { user: "Kavita Singh", action: "Registered", time: "2 hr ago", amount: null },
-]
+// ── Helpers ────────────────────────────────────────────────────────────────
+function formatRevenue(amount: number): string {
+  if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`
+  if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`
+  return `₹${amount}`
+}
+
+function formatCount(n: number): string {
+  return n.toLocaleString("en-IN")
+}
+
+function timeAgo(isoString: string | null): string {
+  if (!isoString) return "—"
+  const diff = Date.now() - new Date(isoString).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return "Just now"
+  if (mins < 60) return `${mins} min ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs} hr ago`
+  return `${Math.floor(hrs / 24)} days ago`
+}
+
+// ── Data fetcher ───────────────────────────────────────────────────────────
+async function getAdminStats(): Promise<AdminStats | null> {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000"
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/stats`, {
+      cache: "no-store", // always fresh data
+    })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
+}
 
 export default async function AdminDashboardPage() {
-  const adminName = (await getUserSession())?.name || "Admin"
+  const [adminName, serverStats] = await Promise.all([
+    getUserSession().then((s) => s?.name ?? "Admin"),
+    getAdminStats(),
+  ])
+
+  const stats = [
+    {
+      label: "Total Users",
+      value: serverStats ? formatCount(serverStats.totalUsers) : "—",
+      change: "live",
+      icon: Users,
+    },
+    {
+      label: "Total Orders",
+      value: serverStats ? formatCount(serverStats.totalOrders) : "—",
+      change: "live",
+      icon: ShoppingBag,
+    },
+    {
+      label: "Revenue",
+      value: serverStats ? formatRevenue(serverStats.totalRevenue) : "—",
+      change: "live",
+      icon: TrendingUp,
+    },
+    {
+      label: "Products",
+      value: serverStats ? formatCount(serverStats.totalProducts) : "—",
+      change: "live",
+      icon: Package,
+    },
+  ]
+
+  const recentActivity = serverStats?.recentActivity.map((item) => ({
+    ...item,
+    time: timeAgo(item.time),
+  })) ?? []
 
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -86,8 +156,9 @@ export default async function AdminDashboardPage() {
                   <div>
                     <p className="text-xs text-muted-foreground">{stat.label}</p>
                     <p className="text-2xl font-bold mt-1 tracking-tight">{stat.value}</p>
-                    <span className="inline-block mt-2 text-xs font-medium text-foreground/60 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                      {stat.change} this month
+                    <span className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live
                     </span>
                   </div>
                   <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
