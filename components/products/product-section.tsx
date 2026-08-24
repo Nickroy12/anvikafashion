@@ -1,16 +1,7 @@
 import { ProductCard } from "@/components/ui/product-card";
 import { serverFetch } from "@/lib/core/api";
-
-export interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  discount?: number;
-  imageUrl?: string;
-  imageUrls?: string[];
-  category: string;
-}
+import type { Product } from "@/components/products/collection-page";
+export type { Product } from "@/components/products/collection-page";
 
 export async function ProductSection() {
   let products: Product[] = [];

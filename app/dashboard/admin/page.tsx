@@ -7,10 +7,10 @@ import {
   Package,
   Settings,
   Bell,
-  BarChart3,
   Shield,
   Plus,
 } from "lucide-react"
+import RevenueChart from "@/components/admin/RevenueChart"
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface AdminStats {
@@ -172,34 +172,8 @@ export default async function AdminDashboardPage() {
 
         {/* Charts + Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Bar chart */}
-          <div className="lg:col-span-2 rounded-xl bg-white dark:bg-zinc-900 border border-border/60 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-foreground/60" />
-                <h3 className="text-sm font-semibold">Revenue Overview</h3>
-              </div>
-              <select className="text-xs border border-border/60 rounded-lg px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-muted-foreground">
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-              </select>
-            </div>
-            <div className="flex items-end gap-2 h-36">
-              {[60, 80, 45, 90, 70, 85, 95].map((h, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div
-                    className="w-full rounded-t-md bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-500 transition-colors"
-                    style={{ height: `${h}%` }}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-2 text-[11px] text-muted-foreground px-1">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                <span key={d}>{d}</span>
-              ))}
-            </div>
-          </div>
+          {/* Dynamic Revenue Chart */}
+          <RevenueChart backendUrl={process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000"} />
 
           {/* Recent Activity */}
           <div className="rounded-xl bg-white dark:bg-zinc-900 border border-border/60 p-6">
