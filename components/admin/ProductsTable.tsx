@@ -302,7 +302,7 @@ function EditModal({
                 className="w-full px-3 py-2 border border-border/60 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 text-sm appearance-none bg-white dark:bg-zinc-900"
               >
                 <option value="clothing">Clothing</option>
-                <option value="accessories">Accessories</option>
+                <option value="cosmetics-and-fashion-accessories">Cosmetics and fashion Accessories</option>
                 <option value="shoes">Shoes</option>
                 <option value="jewelry">Jewelry</option>
               </select>

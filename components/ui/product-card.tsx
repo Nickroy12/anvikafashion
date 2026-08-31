@@ -42,6 +42,11 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
         <CardHeader className="flex-none p-5 pb-2">
           <CardTitle className="text-lg line-clamp-1 group-hover/card:text-primary transition-colors">{product.name}</CardTitle>
+          {product.createdAt && new Date(product.createdAt).getTime() >= Date.now() - 24 * 60 * 60 * 1000 && (
+            <div className="text-xs text-muted-foreground mt-1">
+              Added {Math.max(1, Math.floor((Date.now() - new Date(product.createdAt).getTime()) / (60 * 60 * 1000)))}h ago
+            </div>
+          )}
         </CardHeader>
       </Link>
       <CardContent className="flex-1 p-5 pt-3">

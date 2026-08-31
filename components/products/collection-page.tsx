@@ -57,14 +57,18 @@ function applyFilter(products: Product[], filter: CollectionFilter): Product[] {
       });
 
     case "new-arrivals":
-      // Sort by newest first, take the most recent 20
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).getTime();
       return [...products]
+        .filter((p) => {
+          if (!p.createdAt) return false;
+          return new Date(p.createdAt).getTime() >= twentyFourHoursAgo;
+        })
         .sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           return dateB - dateA;
-        })
-        .slice(0, 20);
+        });
+
 
     case "on-sale":
       return products.filter((p) => p.discount && Number(p.discount) > 0);

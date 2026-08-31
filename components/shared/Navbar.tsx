@@ -24,8 +24,8 @@ const NAV_LINKS: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
   { name: "New Arrivals", href: "/new-arrivals" },
-  { 
-    name: "Dresses", 
+  {
+    name: "Dresses",
     href: "/dresses",
     megaMenu: {
       categories: [
@@ -56,7 +56,7 @@ const NAV_LINKS: NavLink[] = [
       }
     }
   },
-  { name: "Accessories", href: "/accessories" },
+  { name: "Cosmetics & Accessories", href: "/cosmetics-and-fashion-accessories" },
   { name: "Autumn Sales", href: "/autumn-sales" },
 ]
 
@@ -69,10 +69,10 @@ export const Navbar: React.FC = () => {
 
   const { data: session, isPending } = authClient.useSession()
   const user = session?.user
-  
+
   const { items, toggleCart } = useCartStore()
   const [isMounted, setIsMounted] = useState(false)
-  
+
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -121,13 +121,12 @@ export const Navbar: React.FC = () => {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium h-full">
             {NAV_LINKS.map((link) => (
               <div key={link.href} className="group relative h-full flex items-center">
-                <Link 
-                  href={link.href} 
-                  className={`transition-colors py-2 flex items-center gap-1 ${
-                    pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
+                <Link
+                  href={link.href}
+                  className={`transition-colors py-2 flex items-center gap-1 ${pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
                       ? "text-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {link.name}
                   {link.megaMenu && <ChevronDown className={`w-4 h-4 transition-transform duration-300 group-hover:rotate-180 ${pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)) ? "opacity-100" : "opacity-70"}`} />}
@@ -153,8 +152,8 @@ export const Navbar: React.FC = () => {
                       </div>
                       {link.megaMenu.featuredImage && (
                         <div className="col-span-1 relative rounded-lg overflow-hidden group/img h-full min-h-[200px]">
-                          <img 
-                            src={link.megaMenu.featuredImage.src} 
+                          <img
+                            src={link.megaMenu.featuredImage.src}
                             alt={link.megaMenu.featuredImage.alt}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
                           />
@@ -174,8 +173,8 @@ export const Navbar: React.FC = () => {
 
           {/* Action Button & Mobile Toggle */}
           <div className="flex items-center gap-2 sm:gap-4 z-50">
-            <button 
-              onClick={toggleCart} 
+            <button
+              onClick={toggleCart}
               className="relative p-2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
               aria-label="Toggle cart"
             >
@@ -187,7 +186,7 @@ export const Navbar: React.FC = () => {
               )}
             </button>
             <CartDrawer />
-            
+
             <ThemeToggle />
 
             {/* Session-aware auth area */}
@@ -236,11 +235,10 @@ export const Navbar: React.FC = () => {
                                 <div className="flex items-center gap-2">
                                   <p className="text-sm font-semibold text-foreground truncate">{user.name || "User"}</p>
                                   {userRole && (
-                                    <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${
-                                      userRole === "admin"
+                                    <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${userRole === "admin"
                                         ? "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
                                         : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                                    }`}>
+                                      }`}>
                                       {userRole}
                                     </span>
                                   )}
@@ -337,13 +335,12 @@ export const Navbar: React.FC = () => {
                     transition={{ delay: 0.1 + i * 0.1 }}
                     className="flex flex-col"
                   >
-                    <Link 
-                      href={link.href} 
-                      className={`transition-colors block ${
-                        pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
+                    <Link
+                      href={link.href}
+                      className={`transition-colors block ${pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
                           ? "text-primary font-bold"
                           : "hover:text-primary"
-                      }`}
+                        }`}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {link.name}
@@ -355,10 +352,10 @@ export const Navbar: React.FC = () => {
                             <span className="text-sm text-muted-foreground font-semibold uppercase tracking-wider">{category.title}</span>
                             <div className="flex flex-col gap-3 pl-2">
                               {category.items.map((item) => (
-                                <Link 
-                                  key={item.name} 
-                                  href={item.href} 
-                                  className="text-base text-foreground/80 hover:text-primary transition-colors" 
+                                <Link
+                                  key={item.name}
+                                  href={item.href}
+                                  className="text-base text-foreground/80 hover:text-primary transition-colors"
                                   onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                   {item.name}
